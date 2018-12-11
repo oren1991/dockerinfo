@@ -118,5 +118,3 @@ CMD [ "npm", "start" ]
 node_modules
 npm-debug.log
 ```
-
-Sources:
