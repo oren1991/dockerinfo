@@ -23,7 +23,7 @@ foo@bar:~$ docker run -d --name blog --expose 80 --net nginx-proxy -e VIRTUAL_HO
 ```
 OR 
 
-Compose:
+Compose yml file
 
 ```yml
 version: "3"
@@ -61,4 +61,7 @@ networks:
   default:
     external:
       name: nginx-proxy
+```
+```console
+foo@bar:~$ docker-compose up -d #you have to install docker-composer
 ```
