@@ -91,3 +91,8 @@ COPY . .
 EXPOSE 8080
 CMD [ "npm", "start" ]
 ```
+
+```dockerignore
+node_modules
+npm-debug.log
+```
