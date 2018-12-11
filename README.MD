@@ -118,3 +118,13 @@ CMD [ "npm", "start" ]
 node_modules
 npm-debug.log
 ```
+
+##Useful docker commands
+```command
+$ docker images #list images
+$ docker container ls #list active containers
+$ docker container ls -a #to list all containers (nonactive ones also)
+$ docker stop [id] #stop container
+$ docker rm [id] #remove container
+$ docker run [image] #shoot up a container based on an image
+```
