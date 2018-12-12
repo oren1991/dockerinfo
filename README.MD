@@ -128,3 +128,38 @@ $ docker stop [id] #stop container
 $ docker rm [id] #remove container
 $ docker run [image] #shoot up a container based on an image
 ```
+
+
+## Applying SSL
+
+nginx-proxy has to be started with some additional volumes
+```console
+$ docker run -d -p 80:80 -p 443:443 --net nginx-proxy\
+    --name nginx-proxy \
+    -v /etc/nginx/certs:/etc/nginx/certs:ro \
+    -v /etc/nginx/vhost.d \
+    -v /usr/share/nginx/html \
+    -v /var/run/docker.sock:/tmp/docker.sock:ro \
+    --label com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy \
+    jwilder/nginx-proxy
+```
+Then start the companion container with the shared volumes
+
+```console
+$ docker run -d \
+    -v /etc/nginx/certs:/etc/nginx/certs:rw \
+    -v /var/run/docker.sock:/var/run/docker.sock:ro \
+    --volumes-from nginx-proxy \
+    jrcs/letsencrypt-nginx-proxy-companion
+```
+
+### An example app to apply to the proxy and ensure https connection
+```console
+$ docker run -d --name foodapp \ #container name in docker
+	--expose 8080\ #PORT on which your application communicates
+	--net nginx-proxy\ #apply the network where the nginx-proxy communicates
+	-e VIRTUAL_HOST=food-app.progporonty.hu\ #virtual host can be applied with comma separation (no space)
+	-e LETSENCRYPT_HOST=food-app.progporonty.hu\ #virtual host
+	-e LETSENCRYPT_EMAIL=arbel.oren91@gmail.com\ #notification email
+	vuejs/foodapp #image name
+```
