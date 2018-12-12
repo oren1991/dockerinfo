@@ -132,6 +132,14 @@ $ docker run [image] #shoot up a container based on an image
 
 ## Applying SSL
 
+Create these folders
+```console
+mkdir -p /etc/nginx/certs
+mkdir -p /usr/share/nginx/html
+cd /etc/nginx
+touch vhost.d
+```
+
 nginx-proxy has to be started with some additional volumes
 ```console
 $ docker run -d -p 80:80 -p 443:443 --net nginx-proxy\
