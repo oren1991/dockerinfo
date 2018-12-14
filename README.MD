@@ -171,3 +171,82 @@ $ docker run -d --name foodapp \ #container name in docker
 	-e LETSENCRYPT_EMAIL=arbel.oren91@gmail.com\ #notification email
 	vuejs/foodapp #image name
 ```
+
+## Blue-Green Deployment with docker nginx-proxy
+### Set up app to get latest codechanges from github on restart.
+
+Dockerfile:
+```dockerfile
+FROM node
+
+# install simple http server for serving static content
+ENV NODE_VERSION stable
+ENV NPM_SCRIPT ""
+ENV GIT_URL https://github.com/oren1991/food-api
+ 
+ENV APP_HOME .
+ENV APP_STARTUP "server.js"
+# JUST_RUN specifies whether node should be installed and git should be cloned
+ENV JUST_RUN N
+ 
+COPY ./docker-work /code
+ 
+WORKDIR /code
+ 
+#RUN chown -R app:app /code/*
+RUN chmod +x /code/install-entrypoint.sh
+RUN npm install -g n --silent
+RUN n stable
+ 
+EXPOSE 3001
+ENTRYPOINT ["/code/install-entrypoint.sh"]
+```
+intall-entypoint.sh file
+```bash
+#!/bin/bash
+ 
+if [ "$JUST_RUN" = "N" ]; then
+  echo switching node to version $NODE_VERSION
+  n $NODE_VERSION --quiet
+fi
+ 
+echo node version: `node --version`
+ 
+if [ -d "app" ]; then
+  # Control will enter here if $DIRECTORY exists.
+  rm -rf app
+fi 
+ 
+if [ "$JUST_RUN" = "N" ]; then
+  git clone $GIT_URL app
+fi
+
+mv .env ./app/.env
+cd app
+ 
+cd $APP_HOME
+echo Application Home: $APP_HOME
+ 
+if [ "$JUST_RUN" = "N" ]; then
+  if [ "$YARN_INSTALL" = "1" ]; then
+    yarn install --production --silent
+  else
+    npm install  --silent
+  fi
+fi
+ 
+if [ "$APP_STARTUP" = "" ]; then
+    echo "this runs npmscript" 
+  npm run $NPM_SCRIPT
+else
+echo "this runs app_startup"
+  node $APP_STARTUP
+fi
+
+```
+
+### Deploying the app
+* Deploy the app regularly to the nginx network with the virtual hosts provided above..
+* Have a second container with the same settings.
+* If you have to change code start that container once it's up you can stop the old
+* nginx-proxy handles the routing
