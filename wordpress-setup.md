@@ -1,5 +1,9 @@
-run docker-compose -f wordpress-compose.yml up
+# Wordpress local setup with docker-compose
 
+- run this code in your folder you have yml file
+'''console
+docker-compose -f wordpress-compose.yml up
+'''
 This will start the database and wordpress
 
 Log in to wordpress container
